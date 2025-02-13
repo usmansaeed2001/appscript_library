@@ -8,48 +8,23 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
-      - name: Install Dependencies
+      - name: Install Clasp
         run: npm install -g @google/clasp
 
-      # 🔄 Refresh Access Token
-      - name: Refresh Google OAuth Access Token
-        run: |
-          RESPONSE=$(curl -s -X POST https://oauth2.googleapis.com/token \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "client_id=${{ secrets.GCP_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.GCP_CLIENT_SECRET }}" \
-            -d "refresh_token=${{ secrets.GCP_REFRESH_TOKEN }}" \
-            -d "grant_type=refresh_token")
+      - name: Authenticate with Google
+        run: echo "$GOOGLE_CREDENTIALS" > ~/.clasprc.json
+        shell: bash
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
-          ACCESS_TOKEN=$(echo $RESPONSE | jq -r .access_token)
-          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
-
-      # 🛠 Create `.clasprc.json` with Updated Access Token
-      - name: Create Clasp Auth File
-        run: |
-          echo '{
-            "token": {
-              "access_token": "'"$ACCESS_TOKEN"'",
-              "refresh_token": "'"${{ secrets.GCP_REFRESH_TOKEN }}"'",
-              "scope": "https://www.googleapis.com/auth/script.deployments",
-              "token_type": "Bearer"
-            },
-            "oauth2ClientSettings": {
-              "clientId": "'"${{ secrets.GCP_CLIENT_ID }}"'",
-              "clientSecret": "'"${{ secrets.GCP_CLIENT_SECRET }}"'"
-            }
-          }' > ~/.clasprc.json
-
-      # 🚀 Deploy to Google Apps Script
-      - name: Deploy Script
+      - name: Push to Apps Script
         run: clasp push -f
