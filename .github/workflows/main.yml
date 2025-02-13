@@ -23,11 +23,11 @@ jobs:
 
       - name: Authenticate with Google Service Account
         env:
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
         run: |
-          echo "$GOOGLE_CREDENTIALS" > $HOME/service-account.json
+          echo "$GCP_SERVICE_ACCOUNT_KEY_BASE64" | base64 -d > $HOME/service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS="$HOME/service-account.json"
           gcloud auth activate-service-account --key-file="$HOME/service-account.json"
 
       - name: Push changes to Apps Script
-        run: clasp push
+        run: clasp push -f
