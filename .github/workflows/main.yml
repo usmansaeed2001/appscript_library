@@ -20,6 +20,9 @@ jobs:
 
       - name: Install Clasp
         run: npm install -g @google/clasp
+      
+      - name: Debug Secret Value (Do NOT do this in production)
+        run: echo "$GCP_SERVICE_ACCOUNT_KEY_BASE64"
 
       - name: Authenticate Clasp
         run: |
