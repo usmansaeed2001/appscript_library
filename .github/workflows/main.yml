@@ -21,7 +21,9 @@ jobs:
         run: npm install -g @google/clasp
 
       - name: Authenticate with Google
-        run: echo "$GOOGLE_CREDENTIALS" > ~/.clasprc.json
+        run: |
+          echo "$GOOGLE_CREDENTIALS" > service-account.json
+          clasp login --creds service-account.json
         shell: bash
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
