@@ -21,13 +21,10 @@ jobs:
       - name: Install Clasp
         run: npm install -g @google/clasp
 
-      - name: Authenticate with Google Service Account
-        env:
-          GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
+      - name: Authenticate Clasp
         run: |
-          echo "$GCP_SERVICE_ACCOUNT_KEY_BASE64" | base64 -d > $HOME/service-account.json
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/service-account.json"
-          gcloud auth activate-service-account --key-file="$HOME/service-account.json"
+          echo "$GCP_SERVICE_ACCOUNT_KEY_BASE64" | base64 -d > "$HOME/service-account.json"
+          clasp login --creds "$HOME/service-account.json"
 
       - name: Push changes to Apps Script
         run: clasp push -f
